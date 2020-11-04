@@ -1,12 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import "./style.css";
 import TodoItem from "./todo-item";
 
+import "./style/style.css";
+
 class App extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       todo: "",
       todos: [],
@@ -21,6 +22,7 @@ class App extends React.Component {
 
   addTodo = (e) => {
     e.preventDefault();
+    console.log("addtodo");
     fetch("http://localhost:5000/api/create-todo", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -32,10 +34,22 @@ class App extends React.Component {
       .then((res) => res.json())
       .then((data) => {
         this.setState((prevState) => ({
-          todos: [...prevState.todos, data],
+          todos: [data, ...prevState.todos],
           todo: "",
         }));
       });
+  };
+
+  deleteTodo = (id) => {
+    fetch(`http://localhost:5000/api/delete-todo/${id}`, {
+      method: "DELETE",
+    }).then(
+      this.setState((prevState) => ({
+        todos: prevState.todos.filter((todo) => {
+          return todo.id !== id;
+        }),
+      }))
+    );
   };
 
   componentDidMount() {
@@ -50,7 +64,9 @@ class App extends React.Component {
 
   renderTodos = () => {
     return this.state.todos.map((todo) => {
-      return <TodoItem key={todo.id} todo={todo} />;
+      return (
+        <TodoItem key={todo.id} todo={todo} deleteTodo={this.deleteTodo} />
+      );
     });
   };
 
@@ -58,12 +74,13 @@ class App extends React.Component {
     return (
       <div className="app">
         <h1>Todo List</h1>
-        <form className="add todo" onSubmit={this.addTodo}>
+        <form className="add-todo" onSubmit={this.addTodo}>
           <input
             type="text"
-            placeholder="add todo"
+            placeholder="Add Todo"
             value={this.state.todo}
             onChange={this.handleChange}
+            required
           />
           <button type="submit">Add</button>
         </form>
