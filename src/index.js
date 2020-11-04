@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 
 import TodoItem from "./todo-item";
 
-import "./style/style.css";
+import "./style.css";
 
 class App extends React.Component {
   constructor(props) {
